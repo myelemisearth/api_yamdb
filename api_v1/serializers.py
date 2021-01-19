@@ -8,22 +8,39 @@ from .models import User, Review, Comment, Categories, Genres, Titles
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    text = serializers.CharField()
+    score = serializers.IntegerField(min_value=1, max_value=10)
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True,
         default=serializers.CurrentUserDefault()
     )
+    title = serializers.SlugRelatedField(
+        slug_field='name',
+        queryset=Titles.objects.all(),
+    )
 
     class Meta:
         fields = '__all__'
         model = Review
+        validators = [ 
+            UniqueTogetherValidator( 
+                queryset=Review.objects.all(), 
+                fields=['author', 'title_id'] 
+            ) 
+        ]
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    text = serializers.CharField()
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True,
         default=serializers.CurrentUserDefault()
+    )
+    review = serializers.SlugRelatedField(
+        slug_field='text',
+        queryset=Review.objects.all()
     )
 
     class Meta:
@@ -93,7 +110,7 @@ class TitleSerializer(serializers.ModelSerializer):
 
 class TitlesSerializerGet(TitleSerializer):
     genre = GenresSerializer(many=True)
-    category = CategoriesSerializer
+    category = CategoriesSerializer()
 
 
 class TitlesSerializerPost(TitleSerializer):

@@ -100,12 +100,12 @@ class CommentsViewSet(ModelViewSet):
     permission_classes = (IsAuthenticated, IsOwnerOrReadOnly,)
 
     def get_queryset(self):
-        title = get_object_or_404(Titles, pk=self.kwargs.get('review_id'))
-        return title.comments
+        reviews = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        return reviews.comments
 
     def perform_create(self, serializer):
-        title = get_object_or_404(Titles, pk=self.kwargs.get('review_id'))
-        serializer.save(author=self.request.user, title=title)
+        reviews = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        serializer.save(author=self.request.user, reviews=reviews)
 
 
 class CustomViewSet(

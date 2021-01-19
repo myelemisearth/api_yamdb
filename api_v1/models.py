@@ -71,11 +71,7 @@ class Titles(models.Model):
         max_length=200,
         unique=True
     )
-    year = models.DateTimeField(
-        'Дата создания',
-        auto_now_add=True,
-        db_index=True
-    )
+    year = models.IntegerField()
     description = models.TextField()
     rating = models.IntegerField(
         choices=RATING_CHOICES,
@@ -89,9 +85,8 @@ class Titles(models.Model):
         null=True,
         related_name='titles'
     )
-    genre = models.ForeignKey(
+    genre = models.ManyToManyField(
         Genres,
-        on_delete=models.DO_NOTHING,
         blank=True,
         null=True,
         related_name='titles'
