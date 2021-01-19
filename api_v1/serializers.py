@@ -1,3 +1,5 @@
+from rest_framework.fields import ReadOnlyField
+from django.db.models import query
 from rest_framework import serializers 
 from rest_framework.validators import UniqueTogetherValidator 
 from rest_framework_simplejwt.tokens import AccessToken
@@ -82,11 +84,22 @@ class GenresSerializer(serializers.ModelSerializer):
         model = Genres
 
 
-class TitlesSerializer(serializers.ModelSerializer):
-    category = CategoriesSerializer(read_only=True)
-    genre = GenresSerializer(read_only=True, many=True)
-
+class TitleSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('id', 'name', 'year', 'rating',
-                  'description', 'genre', 'category')
         model = Titles
+        fields = '__all__'
+        read_only_fields = ['rating',]
+
+
+class TitlesSerializerGet(TitleSerializer):
+    genre = GenresSerializer(many=True)
+    category = CategoriesSerializer
+
+
+class TitlesSerializerPost(TitleSerializer):
+    category = serializers.SlugRelatedField(slug_field='slug',
+                                            queryset=Categories.objects.all(),
+                                            required=False)
+    genre = serializers.SlugRelatedField(slug_field='slug',
+                                            queryset=Genres.objects.all(),
+                                            many=True)

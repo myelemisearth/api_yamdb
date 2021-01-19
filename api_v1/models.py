@@ -79,7 +79,8 @@ class Titles(models.Model):
     description = models.TextField()
     rating = models.IntegerField(
         choices=RATING_CHOICES,
-        default=None
+        default=None,
+        null=True
     )
     category = models.ForeignKey(
         Categories,
