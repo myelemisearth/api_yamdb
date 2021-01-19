@@ -1,8 +1,6 @@
-from rest_framework.fields import ReadOnlyField
-from django.db.models import query
-from rest_framework import serializers 
-from rest_framework.validators import UniqueTogetherValidator 
+from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework.validators import UniqueTogetherValidator
 
 from .models import User, Review, Comment, Categories, Genres, Titles
 
@@ -24,6 +22,10 @@ class CommentSerializer(serializers.ModelSerializer):
         slug_field='username',
         read_only=True,
         default=serializers.CurrentUserDefault()
+    )
+    review = serializers.SlugRelatedField(
+        slug_field='id',
+        read_only=True
     )
 
     class Meta:
@@ -49,7 +51,10 @@ class CustomTokenObtainSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    role = serializers.ChoiceField(choices=User.Roles.choices, default='user')
+    role = serializers.ChoiceField(
+        choices=User.Roles.choices,
+        default='user'
+    )
 
     class Meta:
         fields = ('first_name', 'last_name', 'username',
@@ -85,21 +90,26 @@ class GenresSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Titles
         fields = '__all__'
-        read_only_fields = ['rating',]
+        read_only_fields = ('rating',)
 
 
 class TitlesSerializerGet(TitleSerializer):
     genre = GenresSerializer(many=True)
-    category = CategoriesSerializer
+    category = CategoriesSerializer()
 
 
 class TitlesSerializerPost(TitleSerializer):
-    category = serializers.SlugRelatedField(slug_field='slug',
-                                            queryset=Categories.objects.all(),
-                                            required=False)
-    genre = serializers.SlugRelatedField(slug_field='slug',
-                                            queryset=Genres.objects.all(),
-                                            many=True)
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Categories.objects.all(),
+        required=False
+    )
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Genres.objects.all(),
+        many=True
+    )

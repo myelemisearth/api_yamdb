@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -54,6 +53,9 @@ class Categories(models.Model):
         unique=True
     )
 
+    class Meta:
+        ordering = ('name',)
+
 
 class Genres(models.Model):
     name = models.CharField(
@@ -65,17 +67,16 @@ class Genres(models.Model):
         unique=True
     )
 
+    class Meta:
+        ordering = ('name',)
+
 
 class Titles(models.Model):
     name = models.CharField(
         max_length=200,
         unique=True
     )
-    year = models.DateTimeField(
-        'Дата создания',
-        auto_now_add=True,
-        db_index=True
-    )
+    year = models.IntegerField()
     description = models.TextField()
     rating = models.IntegerField(
         choices=RATING_CHOICES,
@@ -89,13 +90,14 @@ class Titles(models.Model):
         null=True,
         related_name='titles'
     )
-    genre = models.ForeignKey(
+    genre = models.ManyToManyField(
         Genres,
-        on_delete=models.DO_NOTHING,
         blank=True,
-        null=True,
         related_name='titles'
     )
+
+    class Meta:
+        ordering = ('name',)
  
  
 class Review(models.Model):
@@ -123,12 +125,15 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews'
     )
+
+    class Meta:
+        ordering = ('author',)
  
  
 class Comment(models.Model):
     text = models.TextField()
     pub_date = models.DateTimeField(
-        'date published',
+        'Дата публикации',
         auto_now_add=True
     )
     review = models.ForeignKey(
@@ -143,3 +148,6 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments'
     )
+
+    class Meta:
+        ordering = ('author',)
