@@ -9,7 +9,7 @@ from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
     ListModelMixin)
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework_simplejwt.views import TokenViewBase
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
@@ -84,9 +84,8 @@ class TokenObtainView(TokenViewBase):
 
 
 class ReviewsViewSet(ModelViewSet):
-    pagination_class = PageNumberPagination
     serializer_class = ReviewSerializer
-    permission_classes = (IsOwner|ReadOnly,)
+    permission_classes = (IsAuthenticated|ReadOnly, IsOwner,)
 
     def get_queryset(self):
         title = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
@@ -98,17 +97,16 @@ class ReviewsViewSet(ModelViewSet):
 
 
 class CommentsViewSet(ModelViewSet):
-    pagination_class = None
     serializer_class = CommentSerializer
-    #permission_classes = (IsAuthenticated, IsOwnerOrReadOnly,)
+    permission_classes = (IsAuthenticated|ReadOnly, IsOwner)
 
     def get_queryset(self):
         reviews = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
-        return reviews.comments
+        return reviews.comments.all()
 
     def perform_create(self, serializer):
-        title = get_object_or_404(Titles, pk=self.kwargs.get('review_id'))
-        serializer.save(author=self.request.user, review=title.review_id)
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        serializer.save(author=self.request.user, review=review)
 
 
 class CustomViewSet(CreateModelMixin, DestroyModelMixin,

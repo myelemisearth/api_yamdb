@@ -69,7 +69,9 @@ class Titles(models.Model):
     )
     year = models.IntegerField()
     description = models.TextField()
-    rating = models.FloatField()
+    rating = models.FloatField(
+        null=True
+    )
     category = models.ForeignKey(
         Categories,
         on_delete=models.DO_NOTHING,

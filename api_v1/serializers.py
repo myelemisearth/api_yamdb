@@ -19,7 +19,8 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate(self, data):
         title_id = self.context.get('view').kwargs.get('title_id')
         author = self.context.get('request').user
-        if Review.objects.filter(title_id=title_id, author_id=author.id).exists():
+        if self.context.get('request').method == 'POST' and \
+            Review.objects.filter(title_id=title_id, author_id=author.id).exists():
             raise serializers.ValidationError(
                 {'detail': 'Review for this title has been left'})
         return data
@@ -36,10 +37,10 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only=True,
         default=serializers.CurrentUserDefault()
     )
-    review = serializers.SlugRelatedField(
-        slug_field='text',
-        queryset=Review.objects.all()
-    )
+    #review = serializers.SlugRelatedField(
+    #    slug_field='text',
+    #    queryset=Review.objects.all()
+    #)
 
     class Meta:
         fields = '__all__'
