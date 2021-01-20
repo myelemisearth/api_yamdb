@@ -1,16 +1,6 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
-RATING_CHOICES = (
-    (None, 'No rating'),   
-    (1, 'Poor'),
-    (2, 'Average'),
-    (3, 'Good'),
-    (4, 'Very Good'),
-    (5, 'Excellent')
-)
 
 
 class User(AbstractUser):
@@ -54,6 +44,9 @@ class Categories(models.Model):
         unique=True
     )
 
+    class Meta:
+        ordering = ('name',)
+
 
 class Genres(models.Model):
     name = models.CharField(
@@ -65,6 +58,9 @@ class Genres(models.Model):
         unique=True
     )
 
+    class Meta:
+        ordering = ('name',)
+
 
 class Titles(models.Model):
     name = models.CharField(
@@ -73,11 +69,7 @@ class Titles(models.Model):
     )
     year = models.IntegerField()
     description = models.TextField()
-    rating = models.IntegerField(
-        choices=RATING_CHOICES,
-        default=None,
-        null=True
-    )
+    rating = models.FloatField()
     category = models.ForeignKey(
         Categories,
         on_delete=models.DO_NOTHING,
@@ -88,9 +80,11 @@ class Titles(models.Model):
     genre = models.ManyToManyField(
         Genres,
         blank=True,
-        null=True,
         related_name='titles'
     )
+
+    class Meta:
+        ordering = ('name',)
  
  
 class Review(models.Model):
@@ -109,21 +103,22 @@ class Review(models.Model):
     title = models.ForeignKey(
         Titles,
         on_delete=models.CASCADE,
-        related_name='reviews',
-        blank=True,
-        null=True
+        related_name='reviews'
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='reviews'
     )
+
+    class Meta:
+        ordering = ('author',)
  
  
 class Comment(models.Model):
     text = models.TextField()
     pub_date = models.DateTimeField(
-        'date published',
+        'Дата публикации',
         auto_now_add=True
     )
     review = models.ForeignKey(
@@ -138,3 +133,6 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments'
     )
+
+    class Meta:
+        ordering = ('author',)

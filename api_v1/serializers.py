@@ -1,34 +1,32 @@
-from rest_framework.fields import ReadOnlyField
-from django.db.models import query
-from rest_framework import serializers 
-from rest_framework.validators import UniqueTogetherValidator 
+from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework.validators import UniqueTogetherValidator
 
 from .models import User, Review, Comment, Categories, Genres, Titles
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    text = serializers.CharField()
-    score = serializers.IntegerField(min_value=1, max_value=10)
+    title = serializers.SlugRelatedField(
+        slug_field='name',
+        read_only=True
+    )
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True,
         default=serializers.CurrentUserDefault()
     )
-    title = serializers.SlugRelatedField(
-        slug_field='name',
-        queryset=Titles.objects.all(),
-    )
+
+    def validate(self, data):
+        title_id = self.context.get('view').kwargs.get('title_id')
+        author = self.context.get('request').user
+        if Review.objects.filter(title_id=title_id, author_id=author.id).exists():
+            raise serializers.ValidationError(
+                {'detail': 'Review for this title has been left'})
+        return data
 
     class Meta:
         fields = '__all__'
         model = Review
-        validators = [ 
-            UniqueTogetherValidator( 
-                queryset=Review.objects.all(), 
-                fields=['author', 'title_id'] 
-            ) 
-        ]
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -66,7 +64,10 @@ class CustomTokenObtainSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    role = serializers.ChoiceField(choices=User.Roles.choices, default='user')
+    role = serializers.ChoiceField(
+        choices=User.Roles.choices,
+        default='user'
+    )
 
     class Meta:
         fields = ('first_name', 'last_name', 'username',
@@ -102,10 +103,11 @@ class GenresSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Titles
         fields = '__all__'
-        read_only_fields = ['rating',]
+        read_only_fields = ('rating',)
 
 
 class TitlesSerializerGet(TitleSerializer):
@@ -114,9 +116,13 @@ class TitlesSerializerGet(TitleSerializer):
 
 
 class TitlesSerializerPost(TitleSerializer):
-    category = serializers.SlugRelatedField(slug_field='slug',
-                                            queryset=Categories.objects.all(),
-                                            required=False)
-    genre = serializers.SlugRelatedField(slug_field='slug',
-                                            queryset=Genres.objects.all(),
-                                            many=True)
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Categories.objects.all(),
+        required=False
+    )
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Genres.objects.all(),
+        many=True
+    )
