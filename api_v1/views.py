@@ -7,22 +7,23 @@ from django.shortcuts import get_object_or_404
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
-    ListModelMixin)
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+                                   ListModelMixin)
+from rest_framework.permissions import (IsAuthenticated, BasePermission,
+                                        SAFE_METHODS)
 from rest_framework_simplejwt.views import TokenViewBase
-from rest_framework.permissions import BasePermission, SAFE_METHODS
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from .filters import TitleFilter
 from .models import Review, Comment, Titles, Genres, Categories
-from .permissions import ReadOnly, IsAdmin, IsModerator, IsUser, IsOwner
+from .permissions import ReadOnly, IsAdmin, IsModerator, IsOwner
 from .serializers import (TitlesSerializerGet, TitlesSerializerPost,
                           UserSerializer, EmailSerializer,
                           CustomTokenObtainSerializer, ReviewSerializer,
                           CommentSerializer, GenresSerializer,
                           CategoriesSerializer)
 
+
+from django.db.models import Avg
 
 User = get_user_model()
 
@@ -85,7 +86,8 @@ class TokenObtainView(TokenViewBase):
 
 class ReviewsViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (IsAuthenticated|ReadOnly, IsOwner,)
+    permission_classes = (IsAuthenticated|ReadOnly,
+        IsOwner|IsAdmin|IsModerator|ReadOnly,)
 
     def get_queryset(self):
         title = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
@@ -98,7 +100,8 @@ class ReviewsViewSet(ModelViewSet):
 
 class CommentsViewSet(ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthenticated|ReadOnly, IsOwner)
+    permission_classes = (IsAuthenticated|ReadOnly,
+        IsOwner|IsAdmin|IsModerator|ReadOnly,)
 
     def get_queryset(self):
         reviews = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
@@ -112,6 +115,7 @@ class CommentsViewSet(ModelViewSet):
 class CustomViewSet(CreateModelMixin, DestroyModelMixin,
                     ListModelMixin, GenericViewSet):
     pass
+
 
 class CategoriesViewSet(CustomViewSet):
     queryset = Categories.objects.all()

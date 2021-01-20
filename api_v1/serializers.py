@@ -19,10 +19,11 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate(self, data):
         title_id = self.context.get('view').kwargs.get('title_id')
         author = self.context.get('request').user
-        if self.context.get('request').method == 'POST' and \
-            Review.objects.filter(title_id=title_id, author_id=author.id).exists():
+        if (self.context.get('request').method == 'POST' and
+            Review.objects.filter(title_id=title_id,
+                                  author_id=author.id).exists()):
             raise serializers.ValidationError(
-                {'detail': 'Review for this title has been left'})
+                {'detail': 'You have already left a review about this title'})
         return data
 
     class Meta:
@@ -37,10 +38,6 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only=True,
         default=serializers.CurrentUserDefault()
     )
-    #review = serializers.SlugRelatedField(
-    #    slug_field='text',
-    #    queryset=Review.objects.all()
-    #)
 
     class Meta:
         fields = '__all__'
@@ -58,8 +55,8 @@ class CustomTokenObtainSerializer(serializers.Serializer):
             email=email, password=confirmation_code, is_active=1).first()
         if user is None:
             raise serializers.ValidationError(
-                {'detail': 'User doesnt exists or blocked or' \
-                    ' confirmation code is incorrect'})
+                {'detail': 'User doesnt exists or blocked or ' \
+                    'confirmation code is incorrect'})
         token = {'token': str(AccessToken.for_user(user))}
         return token
 
