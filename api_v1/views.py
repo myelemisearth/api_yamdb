@@ -8,13 +8,12 @@ from rest_framework.filters import SearchFilter
 from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
                                    ListModelMixin)
-from rest_framework.permissions import (IsAuthenticated, BasePermission,
-                                        SAFE_METHODS)
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from rest_framework_simplejwt.views import TokenViewBase
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from .filters import TitleFilter
-from .models import Review, Comment, Titles, Genres, Categories
+from .models import Review, Titles, Genres, Categories
 from .permissions import ReadOnly, IsAdmin, IsModerator, IsOwner
 from .serializers import (TitlesSerializerGet, TitlesSerializerPost,
                           UserSerializer, EmailSerializer,
@@ -95,6 +94,7 @@ class ReviewsViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         title = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
+        rating = title.reviews.annotate(Avg('score'))
         serializer.save(author=self.request.user, title=title)
 
 
@@ -137,7 +137,7 @@ class GenresViewSet(CustomViewSet):
 
 class TitlesViewset(ModelViewSet):
     permission_classes = (IsAdmin|ReadOnly,)
-    queryset = Titles.objects.all()
+    queryset = Titles.objects.annotate(rating=Avg('reviews__score'))
     filterset_class = TitleFilter
     filter_backends = (DjangoFilterBackend,)
 

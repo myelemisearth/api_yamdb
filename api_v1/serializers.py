@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework.validators import UniqueTogetherValidator
 
 from .models import User, Review, Comment, Categories, Genres, Titles
 
@@ -101,11 +100,11 @@ class GenresSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    rating = serializers.FloatField(read_only=True)
 
     class Meta:
         model = Titles
         fields = '__all__'
-        read_only_fields = ('rating',)
 
 
 class TitlesSerializerGet(TitleSerializer):
