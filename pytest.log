@@ -1,0 +1,2435 @@
+============================= test session starts =============================
+platform win32 -- Python 3.7.4, pytest-5.4.1, py-1.8.1, pluggy-0.13.1 -- c:\dev\api_yamdb\venv\scripts\python.exe
+django: settings: api_yamdb.settings (from ini)
+rootdir: C:\Dev\api_yamdb, inifile: pytest.ini, testpaths: tests/
+plugins: django-3.9.0
+collecting ... collected 31 items
+
+tests/test_01_users.py::Test01UserAPI::test_01_users_not_auth PASSED     [  3%]
+tests/test_01_users.py::Test01UserAPI::test_02_users_username_not_auth PASSED [  6%]
+tests/test_01_users.py::Test01UserAPI::test_03_users_me_not_auth PASSED  [  9%]
+tests/test_01_users.py::Test01UserAPI::test_04_users_get_auth PASSED     [ 12%]
+tests/test_01_users.py::Test01UserAPI::test_05_users_post_auth PASSED    [ 16%]
+tests/test_01_users.py::Test01UserAPI::test_06_users_username_get_auth PASSED [ 19%]
+tests/test_01_users.py::Test01UserAPI::test_07_users_username_patch_auth PASSED [ 22%]
+tests/test_01_users.py::Test01UserAPI::test_08_users_username_delete_auth PASSED [ 25%]
+tests/test_01_users.py::Test01UserAPI::test_09_users_check_permissions PASSED [ 29%]
+tests/test_01_users.py::Test01UserAPI::test_10_users_me_get PASSED       [ 32%]
+tests/test_01_users.py::Test01UserAPI::test_11_users_me_patch PASSED     [ 35%]
+tests/test_02_category.py::Test02CategoryAPI::test_01_category_not_auth PASSED [ 38%]
+tests/test_02_category.py::Test02CategoryAPI::test_02_category PASSED    [ 41%]
+tests/test_02_category.py::Test02CategoryAPI::test_03_category_delete FAILED [ 45%]
+tests/test_02_category.py::Test02CategoryAPI::test_04_category_check_permission FAILED [ 48%]
+tests/test_03_genre.py::Test03GenreAPI::test_01_genre_not_auth PASSED    [ 51%]
+tests/test_03_genre.py::Test03GenreAPI::test_02_genre PASSED             [ 54%]
+tests/test_03_genre.py::Test03GenreAPI::test_03_genres_delete FAILED     [ 58%]
+tests/test_03_genre.py::Test03GenreAPI::test_04_genres_check_permission FAILED [ 61%]
+tests/test_04_title.py::Test04TitleAPI::test_01_title_not_auth PASSED    [ 64%]
+tests/test_04_title.py::Test04TitleAPI::test_02_title FAILED             [ 67%]
+tests/test_04_title.py::Test04TitleAPI::test_03_titles_detail FAILED     [ 70%]
+tests/test_04_title.py::Test04TitleAPI::test_04_titles_check_permission FAILED [ 74%]
+tests/test_05_review.py::Test05ReviewAPI::test_01_review_not_auth FAILED [ 77%]
+tests/test_05_review.py::Test05ReviewAPI::test_02_review FAILED          [ 80%]
+tests/test_05_review.py::Test05ReviewAPI::test_03_review_detail FAILED   [ 83%]
+tests/test_05_review.py::Test05ReviewAPI::test_04_reviews_check_permission FAILED [ 87%]
+tests/test_06_comment.py::Test06CommentAPI::test_01_comment_not_auth FAILED [ 90%]
+tests/test_06_comment.py::Test06CommentAPI::test_02_comment FAILED       [ 93%]
+tests/test_06_comment.py::Test06CommentAPI::test_03_review_detail FAILED [ 96%]
+tests/test_06_comment.py::Test06CommentAPI::test_04_comment_check_permission FAILED [100%]
+
+================================== FAILURES ===================================
+__________________ Test02CategoryAPI.test_03_category_delete __________________
+
+self = <tests.test_02_category.Test02CategoryAPI object at 0x054925B0>
+user_client = <rest_framework.test.APIClient object at 0x050F8370>
+
+    @pytest.mark.django_db(transaction=True)
+    def test_03_category_delete(self, user_client):
+        create_categories(user_client)
+        response = user_client.delete('/api/v1/categories/books/')
+        assert response.status_code == 204, \
+            'Проверьте, что при DELETE запросе `/api/v1/categories/{slug}/` возвращаете статус 204'
+        response = user_client.get('/api/v1/categories/')
+        test_data = response.json()['results']
+        assert len(test_data) == 1, \
+            'Проверьте, что при DELETE запросе `/api/v1/categories/{slug}/` удаляете категорию '
+        response = user_client.get('/api/v1/categories/books/')
+>       assert response.status_code == 405, \
+            'Проверьте, что при GET запросе `/api/v1/categories/{slug}/` возвращаете статус 405'
+E       AssertionError: Проверьте, что при GET запросе `/api/v1/categories/{slug}/` возвращаете статус 405
+E       assert 404 == 405
+E         +404
+E         -405
+
+tests\test_02_category.py:87: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:228 Not Found: /api/v1/categories/books/
+_____________ Test02CategoryAPI.test_04_category_check_permission _____________
+
+self = <tests.test_02_category.Test02CategoryAPI object at 0x054BC490>
+client = <django.test.client.Client object at 0x05353F10>
+user_client = <rest_framework.test.APIClient object at 0x053534B0>
+
+    @pytest.mark.django_db(transaction=True)
+    def test_04_category_check_permission(self, client, user_client):
+        categories = create_categories(user_client)
+        data = {
+            'name': 'Музыка',
+            'slug': 'music'
+        }
+>       response = client.post('/api/v1/categories/', data=data)
+
+tests\test_02_category.py:115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\lib\site-packages\django\test\client.py:526: in post
+    response = super().post(path, data=data, content_type=content_type, secure=secure, **extra)
+venv\lib\site-packages\django\test\client.py:356: in post
+    secure=secure, **extra)
+venv\lib\site-packages\django\test\client.py:421: in generic
+    return self.request(**r)
+venv\lib\site-packages\django\test\client.py:496: in request
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:34: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:115: in _get_response
+    response = self.process_exception_by_middleware(e, request)
+venv\lib\site-packages\django\core\handlers\base.py:113: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:114: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:505: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:465: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:476: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:493: in dispatch
+    self.initial(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:411: in initial
+    self.check_permissions(request)
+venv\lib\site-packages\rest_framework\views.py:332: in check_permissions
+    if not permission.has_permission(request, self):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <api_v1.permissions.IsAdminOrReadOnly object at 0x054B4610>
+request = <rest_framework.request.Request object at 0x054B42F0>
+view = <api_v1.views.CategoriesViewset object at 0x054B4D70>
+
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        else:
+>           return request.user.Roles.ADM
+E           AttributeError: 'AnonymousUser' object has no attribute 'Roles'
+
+api_v1\permissions.py:53: AttributeError
+------------------------------ Captured log call ------------------------------
+ERROR    django.request:log.py:228 Internal Server Error: /api/v1/categories/
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 114, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 505, in dispatch
+    response = self.handle_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 465, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 476, in raise_uncaught_exception
+    raise exc
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 493, in dispatch
+    self.initial(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 411, in initial
+    self.check_permissions(request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 332, in check_permissions
+    if not permission.has_permission(request, self):
+  File "C:\Dev\api_yamdb\api_v1\permissions.py", line 53, in has_permission
+    return request.user.Roles.ADM
+AttributeError: 'AnonymousUser' object has no attribute 'Roles'
+____________________ Test03GenreAPI.test_03_genres_delete _____________________
+
+self = <tests.test_03_genre.Test03GenreAPI object at 0x0559D810>
+user_client = <rest_framework.test.APIClient object at 0x05671C70>
+
+    @pytest.mark.django_db(transaction=True)
+    def test_03_genres_delete(self, user_client):
+        genres = create_genre(user_client)
+        response = user_client.delete(f'/api/v1/genres/{genres[0]["slug"]}/')
+        assert response.status_code == 204, \
+            'Проверьте, что при DELETE запросе `/api/v1/genres/{slug}/` возвращаете статус 204'
+        response = user_client.get('/api/v1/genres/')
+        test_data = response.json()['results']
+        assert len(test_data) == len(genres) - 1, \
+            'Проверьте, что при DELETE запросе `/api/v1/genres/{slug}/` удаляете категорию '
+        response = user_client.get(f'/api/v1/genres/{genres[0]["slug"]}/')
+>       assert response.status_code == 405, \
+            'Проверьте, что при GET запросе `/api/v1/genres/{slug}/` возвращаете статус 405'
+E       AssertionError: Проверьте, что при GET запросе `/api/v1/genres/{slug}/` возвращаете статус 405
+E       assert 404 == 405
+E         +404
+E         -405
+
+tests\test_03_genre.py:78: AssertionError
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:228 Not Found: /api/v1/genres/horror/
+_______________ Test03GenreAPI.test_04_genres_check_permission ________________
+
+self = <tests.test_03_genre.Test03GenreAPI object at 0x056535D0>
+client = <django.test.client.Client object at 0x056536F0>
+user_client = <rest_framework.test.APIClient object at 0x05653110>
+
+    @pytest.mark.django_db(transaction=True)
+    def test_04_genres_check_permission(self, client, user_client):
+        genres = create_genre(user_client)
+        data = {
+            'name': 'Боевик',
+            'slug': 'action'
+        }
+        response = client.post('/api/v1/genres/', data=data)
+>       assert response.status_code == 401, \
+            f'Проверьте, что при POST запросе `/api/v1/genres/` ' \
+            f'без токена авторизации возвращается статус 401'
+E       AssertionError: Проверьте, что при POST запросе `/api/v1/genres/` без токена авторизации возвращается статус 401
+E       assert 201 == 401
+E         +201
+E         -401
+
+tests\test_03_genre.py:107: AssertionError
+________________________ Test04TitleAPI.test_02_title _________________________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x055C95B0>
+sql = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (%s, %s, %s, %s, %s, %s)'
+params = ['Поворот туда', '2021-01-18 22:44:38.738962', 'Крутое пике', None, None, None]
+ignored_wrapper_args = (False, {'connection': <django.db.backends.sqlite3.base.DatabaseWrapper object at 0x0432FE10>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x055C95B0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+
+venv\lib\site-packages\django\db\backends\utils.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x0565C0E0>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:38.738962', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.test_04_title.Test04TitleAPI object at 0x05634150>
+user_client = <rest_framework.test.APIClient object at 0x05640970>
+
+    @pytest.mark.django_db(transaction=True)
+    def test_02_title(self, user_client):
+        genres = create_genre(user_client)
+        categories = create_categories(user_client)
+        data = {}
+        response = user_client.post('/api/v1/titles/', data=data)
+        assert response.status_code == 400, \
+            'Проверьте, что при POST запросе `/api/v1/titles/` с не правильными данными возвращает статус 400'
+        data = {'name': 'Поворот туда', 'year': 2000, 'genre': [genres[0]['slug'], genres[1]['slug']],
+                'category': categories[0]['slug'], 'description': 'Крутое пике'}
+>       response = user_client.post('/api/v1/titles/', data=data)
+
+tests\test_04_title.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+venv\lib\site-packages\rest_framework\test.py:294: in post
+    path, data=data, format=format, content_type=content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:207: in post
+    return self.generic('POST', path, data, content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:232: in generic
+    method, path, data, content_type, secure, **extra)
+venv\lib\site-packages\django\test\client.py:421: in generic
+    return self.request(**r)
+venv\lib\site-packages\rest_framework\test.py:283: in request
+    return super().request(**kwargs)
+venv\lib\site-packages\rest_framework\test.py:235: in request
+    request = super().request(**kwargs)
+venv\lib\site-packages\django\test\client.py:496: in request
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:34: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:115: in _get_response
+    response = self.process_exception_by_middleware(e, request)
+venv\lib\site-packages\django\core\handlers\base.py:113: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:114: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:505: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:465: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:476: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:502: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:19: in create
+    self.perform_create(serializer)
+venv\lib\site-packages\rest_framework\mixins.py:24: in perform_create
+    serializer.save()
+venv\lib\site-packages\rest_framework\serializers.py:212: in save
+    self.instance = self.create(validated_data)
+venv\lib\site-packages\rest_framework\serializers.py:948: in create
+    instance = ModelClass._default_manager.create(**validated_data)
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:433: in create
+    obj.save(force_insert=True, using=self.db)
+venv\lib\site-packages\django\db\models\base.py:746: in save
+    force_update=force_update, update_fields=update_fields)
+venv\lib\site-packages\django\db\models\base.py:784: in save_base
+    force_update, using, update_fields,
+venv\lib\site-packages\django\db\models\base.py:887: in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+venv\lib\site-packages\django\db\models\base.py:926: in _do_insert
+    using=using, raw=raw,
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:1204: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv\lib\site-packages\django\db\models\sql\compiler.py:1391: in execute_sql
+    cursor.execute(sql, params)
+venv\lib\site-packages\django\db\backends\utils.py:68: in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+venv\lib\site-packages\django\db\backends\utils.py:77: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+venv\lib\site-packages\django\db\utils.py:90: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x0565C0E0>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:38.738962', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+------------------------------ Captured log call ------------------------------
+WARNING  django.request:log.py:228 Bad Request: /api/v1/titles/
+ERROR    django.request:log.py:228 Internal Server Error: /api/v1/titles/
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 114, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 505, in dispatch
+    response = self.handle_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 465, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 476, in raise_uncaught_exception
+    raise exc
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 502, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 19, in create
+    self.perform_create(serializer)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 24, in perform_create
+    serializer.save()
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 212, in save
+    self.instance = self.create(validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 948, in create
+    instance = ModelClass._default_manager.create(**validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 433, in create
+    obj.save(force_insert=True, using=self.db)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 746, in save
+    force_update=force_update, update_fields=update_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 784, in save_base
+    force_update, using, update_fields,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 887, in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 926, in _do_insert
+    using=using, raw=raw,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 1204, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\sql\compiler.py", line 1391, in execute_sql
+    cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 68, in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 77, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\utils.py", line 90, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+____________________ Test04TitleAPI.test_03_titles_detail _____________________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x050E1BD0>
+sql = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (%s, %s, %s, %s, %s, %s)'
+params = ['Поворот туда', '2021-01-18 22:44:39.715962', 'Крутое пике', None, None, None]
+ignored_wrapper_args = (False, {'connection': <django.db.backends.sqlite3.base.DatabaseWrapper object at 0x0432FE10>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x050E1BD0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+
+venv\lib\site-packages\django\db\backends\utils.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x055687C0>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:39.715962', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.test_04_title.Test04TitleAPI object at 0x04C79110>
+client = <django.test.client.Client object at 0x04C3EB70>
+user_client = <rest_framework.test.APIClient object at 0x04C3E870>
+
+    @pytest.mark.django_db(transaction=True)
+    def test_03_titles_detail(self, client, user_client):
+>       titles, categories, genres = create_titles(user_client)
+
+tests\test_04_title.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\common.py:68: in create_titles
+    response = user_client.post('/api/v1/titles/', data=data)
+venv\lib\site-packages\rest_framework\test.py:294: in post
+    path, data=data, format=format, content_type=content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:207: in post
+    return self.generic('POST', path, data, content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:232: in generic
+    method, path, data, content_type, secure, **extra)
+venv\lib\site-packages\django\test\client.py:421: in generic
+    return self.request(**r)
+venv\lib\site-packages\rest_framework\test.py:283: in request
+    return super().request(**kwargs)
+venv\lib\site-packages\rest_framework\test.py:235: in request
+    request = super().request(**kwargs)
+venv\lib\site-packages\django\test\client.py:496: in request
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:34: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:115: in _get_response
+    response = self.process_exception_by_middleware(e, request)
+venv\lib\site-packages\django\core\handlers\base.py:113: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:114: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:505: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:465: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:476: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:502: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:19: in create
+    self.perform_create(serializer)
+venv\lib\site-packages\rest_framework\mixins.py:24: in perform_create
+    serializer.save()
+venv\lib\site-packages\rest_framework\serializers.py:212: in save
+    self.instance = self.create(validated_data)
+venv\lib\site-packages\rest_framework\serializers.py:948: in create
+    instance = ModelClass._default_manager.create(**validated_data)
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:433: in create
+    obj.save(force_insert=True, using=self.db)
+venv\lib\site-packages\django\db\models\base.py:746: in save
+    force_update=force_update, update_fields=update_fields)
+venv\lib\site-packages\django\db\models\base.py:784: in save_base
+    force_update, using, update_fields,
+venv\lib\site-packages\django\db\models\base.py:887: in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+venv\lib\site-packages\django\db\models\base.py:926: in _do_insert
+    using=using, raw=raw,
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:1204: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv\lib\site-packages\django\db\models\sql\compiler.py:1391: in execute_sql
+    cursor.execute(sql, params)
+venv\lib\site-packages\django\db\backends\utils.py:68: in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+venv\lib\site-packages\django\db\backends\utils.py:77: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+venv\lib\site-packages\django\db\utils.py:90: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x055687C0>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:39.715962', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+------------------------------ Captured log call ------------------------------
+ERROR    django.request:log.py:228 Internal Server Error: /api/v1/titles/
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 114, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 505, in dispatch
+    response = self.handle_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 465, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 476, in raise_uncaught_exception
+    raise exc
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 502, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 19, in create
+    self.perform_create(serializer)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 24, in perform_create
+    serializer.save()
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 212, in save
+    self.instance = self.create(validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 948, in create
+    instance = ModelClass._default_manager.create(**validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 433, in create
+    obj.save(force_insert=True, using=self.db)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 746, in save
+    force_update=force_update, update_fields=update_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 784, in save_base
+    force_update, using, update_fields,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 887, in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 926, in _do_insert
+    using=using, raw=raw,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 1204, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\sql\compiler.py", line 1391, in execute_sql
+    cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 68, in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 77, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\utils.py", line 90, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+_______________ Test04TitleAPI.test_04_titles_check_permission ________________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x055C93D0>
+sql = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (%s, %s, %s, %s, %s, %s)'
+params = ['Поворот туда', '2021-01-18 22:44:40.683962', 'Крутое пике', None, None, None]
+ignored_wrapper_args = (False, {'connection': <django.db.backends.sqlite3.base.DatabaseWrapper object at 0x0432FE10>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x055C93D0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+
+venv\lib\site-packages\django\db\backends\utils.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x0565C088>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:40.683962', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.test_04_title.Test04TitleAPI object at 0x04C2A4D0>
+client = <django.test.client.Client object at 0x05B95FB0>
+user_client = <rest_framework.test.APIClient object at 0x05B95FF0>
+
+    @pytest.mark.django_db(transaction=True)
+    def test_04_titles_check_permission(self, client, user_client):
+>       titles, categories, genres = create_titles(user_client)
+
+tests\test_04_title.py:179: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\common.py:68: in create_titles
+    response = user_client.post('/api/v1/titles/', data=data)
+venv\lib\site-packages\rest_framework\test.py:294: in post
+    path, data=data, format=format, content_type=content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:207: in post
+    return self.generic('POST', path, data, content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:232: in generic
+    method, path, data, content_type, secure, **extra)
+venv\lib\site-packages\django\test\client.py:421: in generic
+    return self.request(**r)
+venv\lib\site-packages\rest_framework\test.py:283: in request
+    return super().request(**kwargs)
+venv\lib\site-packages\rest_framework\test.py:235: in request
+    request = super().request(**kwargs)
+venv\lib\site-packages\django\test\client.py:496: in request
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:34: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:115: in _get_response
+    response = self.process_exception_by_middleware(e, request)
+venv\lib\site-packages\django\core\handlers\base.py:113: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:114: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:505: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:465: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:476: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:502: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:19: in create
+    self.perform_create(serializer)
+venv\lib\site-packages\rest_framework\mixins.py:24: in perform_create
+    serializer.save()
+venv\lib\site-packages\rest_framework\serializers.py:212: in save
+    self.instance = self.create(validated_data)
+venv\lib\site-packages\rest_framework\serializers.py:948: in create
+    instance = ModelClass._default_manager.create(**validated_data)
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:433: in create
+    obj.save(force_insert=True, using=self.db)
+venv\lib\site-packages\django\db\models\base.py:746: in save
+    force_update=force_update, update_fields=update_fields)
+venv\lib\site-packages\django\db\models\base.py:784: in save_base
+    force_update, using, update_fields,
+venv\lib\site-packages\django\db\models\base.py:887: in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+venv\lib\site-packages\django\db\models\base.py:926: in _do_insert
+    using=using, raw=raw,
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:1204: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv\lib\site-packages\django\db\models\sql\compiler.py:1391: in execute_sql
+    cursor.execute(sql, params)
+venv\lib\site-packages\django\db\backends\utils.py:68: in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+venv\lib\site-packages\django\db\backends\utils.py:77: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+venv\lib\site-packages\django\db\utils.py:90: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x0565C088>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:40.683962', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+------------------------------ Captured log call ------------------------------
+ERROR    django.request:log.py:228 Internal Server Error: /api/v1/titles/
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 114, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 505, in dispatch
+    response = self.handle_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 465, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 476, in raise_uncaught_exception
+    raise exc
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 502, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 19, in create
+    self.perform_create(serializer)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 24, in perform_create
+    serializer.save()
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 212, in save
+    self.instance = self.create(validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 948, in create
+    instance = ModelClass._default_manager.create(**validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 433, in create
+    obj.save(force_insert=True, using=self.db)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 746, in save
+    force_update=force_update, update_fields=update_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 784, in save_base
+    force_update, using, update_fields,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 887, in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 926, in _do_insert
+    using=using, raw=raw,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 1204, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\sql\compiler.py", line 1391, in execute_sql
+    cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 68, in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 77, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\utils.py", line 90, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+___________________ Test05ReviewAPI.test_01_review_not_auth ___________________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x050A9EB0>
+sql = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (%s, %s, %s, %s, %s, %s)'
+params = ['Поворот туда', '2021-01-18 22:44:41.643962', 'Крутое пике', None, None, None]
+ignored_wrapper_args = (False, {'connection': <django.db.backends.sqlite3.base.DatabaseWrapper object at 0x0432FE10>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x050A9EB0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+
+venv\lib\site-packages\django\db\backends\utils.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x054A2660>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:41.643962', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.test_05_review.Test05ReviewAPI object at 0x04C3EB50>
+client = <django.test.client.Client object at 0x05B5AD10>
+user_client = <rest_framework.test.APIClient object at 0x05B5AF70>
+
+    @pytest.mark.django_db(transaction=True)
+    def test_01_review_not_auth(self, client, user_client):
+>       titles, _, _ = create_titles(user_client)
+
+tests\test_05_review.py:10: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\common.py:68: in create_titles
+    response = user_client.post('/api/v1/titles/', data=data)
+venv\lib\site-packages\rest_framework\test.py:294: in post
+    path, data=data, format=format, content_type=content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:207: in post
+    return self.generic('POST', path, data, content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:232: in generic
+    method, path, data, content_type, secure, **extra)
+venv\lib\site-packages\django\test\client.py:421: in generic
+    return self.request(**r)
+venv\lib\site-packages\rest_framework\test.py:283: in request
+    return super().request(**kwargs)
+venv\lib\site-packages\rest_framework\test.py:235: in request
+    request = super().request(**kwargs)
+venv\lib\site-packages\django\test\client.py:496: in request
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:34: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:115: in _get_response
+    response = self.process_exception_by_middleware(e, request)
+venv\lib\site-packages\django\core\handlers\base.py:113: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:114: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:505: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:465: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:476: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:502: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:19: in create
+    self.perform_create(serializer)
+venv\lib\site-packages\rest_framework\mixins.py:24: in perform_create
+    serializer.save()
+venv\lib\site-packages\rest_framework\serializers.py:212: in save
+    self.instance = self.create(validated_data)
+venv\lib\site-packages\rest_framework\serializers.py:948: in create
+    instance = ModelClass._default_manager.create(**validated_data)
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:433: in create
+    obj.save(force_insert=True, using=self.db)
+venv\lib\site-packages\django\db\models\base.py:746: in save
+    force_update=force_update, update_fields=update_fields)
+venv\lib\site-packages\django\db\models\base.py:784: in save_base
+    force_update, using, update_fields,
+venv\lib\site-packages\django\db\models\base.py:887: in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+venv\lib\site-packages\django\db\models\base.py:926: in _do_insert
+    using=using, raw=raw,
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:1204: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv\lib\site-packages\django\db\models\sql\compiler.py:1391: in execute_sql
+    cursor.execute(sql, params)
+venv\lib\site-packages\django\db\backends\utils.py:68: in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+venv\lib\site-packages\django\db\backends\utils.py:77: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+venv\lib\site-packages\django\db\utils.py:90: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x054A2660>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:41.643962', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+------------------------------ Captured log call ------------------------------
+ERROR    django.request:log.py:228 Internal Server Error: /api/v1/titles/
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 114, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 505, in dispatch
+    response = self.handle_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 465, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 476, in raise_uncaught_exception
+    raise exc
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 502, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 19, in create
+    self.perform_create(serializer)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 24, in perform_create
+    serializer.save()
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 212, in save
+    self.instance = self.create(validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 948, in create
+    instance = ModelClass._default_manager.create(**validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 433, in create
+    obj.save(force_insert=True, using=self.db)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 746, in save
+    force_update=force_update, update_fields=update_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 784, in save_base
+    force_update, using, update_fields,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 887, in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 926, in _do_insert
+    using=using, raw=raw,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 1204, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\sql\compiler.py", line 1391, in execute_sql
+    cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 68, in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 77, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\utils.py", line 90, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+_______________________ Test05ReviewAPI.test_02_review ________________________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x05BED7F0>
+sql = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (%s, %s, %s, %s, %s, %s)'
+params = ['Поворот туда', '2021-01-18 22:44:42.612964', 'Крутое пике', None, None, None]
+ignored_wrapper_args = (False, {'connection': <django.db.backends.sqlite3.base.DatabaseWrapper object at 0x0432FE10>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x05BED7F0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+
+venv\lib\site-packages\django\db\backends\utils.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x0564AC38>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:42.612964', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.test_05_review.Test05ReviewAPI object at 0x05199830>
+user_client = <rest_framework.test.APIClient object at 0x0572CD50>
+admin = <User: admin@yamdb.fake>
+
+    @pytest.mark.django_db(transaction=True)
+    def test_02_review(self, user_client, admin):
+>       titles, _, _ = create_titles(user_client)
+
+tests\test_05_review.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\common.py:68: in create_titles
+    response = user_client.post('/api/v1/titles/', data=data)
+venv\lib\site-packages\rest_framework\test.py:294: in post
+    path, data=data, format=format, content_type=content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:207: in post
+    return self.generic('POST', path, data, content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:232: in generic
+    method, path, data, content_type, secure, **extra)
+venv\lib\site-packages\django\test\client.py:421: in generic
+    return self.request(**r)
+venv\lib\site-packages\rest_framework\test.py:283: in request
+    return super().request(**kwargs)
+venv\lib\site-packages\rest_framework\test.py:235: in request
+    request = super().request(**kwargs)
+venv\lib\site-packages\django\test\client.py:496: in request
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:34: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:115: in _get_response
+    response = self.process_exception_by_middleware(e, request)
+venv\lib\site-packages\django\core\handlers\base.py:113: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:114: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:505: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:465: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:476: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:502: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:19: in create
+    self.perform_create(serializer)
+venv\lib\site-packages\rest_framework\mixins.py:24: in perform_create
+    serializer.save()
+venv\lib\site-packages\rest_framework\serializers.py:212: in save
+    self.instance = self.create(validated_data)
+venv\lib\site-packages\rest_framework\serializers.py:948: in create
+    instance = ModelClass._default_manager.create(**validated_data)
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:433: in create
+    obj.save(force_insert=True, using=self.db)
+venv\lib\site-packages\django\db\models\base.py:746: in save
+    force_update=force_update, update_fields=update_fields)
+venv\lib\site-packages\django\db\models\base.py:784: in save_base
+    force_update, using, update_fields,
+venv\lib\site-packages\django\db\models\base.py:887: in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+venv\lib\site-packages\django\db\models\base.py:926: in _do_insert
+    using=using, raw=raw,
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:1204: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv\lib\site-packages\django\db\models\sql\compiler.py:1391: in execute_sql
+    cursor.execute(sql, params)
+venv\lib\site-packages\django\db\backends\utils.py:68: in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+venv\lib\site-packages\django\db\backends\utils.py:77: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+venv\lib\site-packages\django\db\utils.py:90: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x0564AC38>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:42.612964', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+------------------------------ Captured log call ------------------------------
+ERROR    django.request:log.py:228 Internal Server Error: /api/v1/titles/
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 114, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 505, in dispatch
+    response = self.handle_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 465, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 476, in raise_uncaught_exception
+    raise exc
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 502, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 19, in create
+    self.perform_create(serializer)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 24, in perform_create
+    serializer.save()
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 212, in save
+    self.instance = self.create(validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 948, in create
+    instance = ModelClass._default_manager.create(**validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 433, in create
+    obj.save(force_insert=True, using=self.db)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 746, in save
+    force_update=force_update, update_fields=update_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 784, in save_base
+    force_update, using, update_fields,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 887, in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 926, in _do_insert
+    using=using, raw=raw,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 1204, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\sql\compiler.py", line 1391, in execute_sql
+    cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 68, in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 77, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\utils.py", line 90, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+____________________ Test05ReviewAPI.test_03_review_detail ____________________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x04C79FB0>
+sql = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (%s, %s, %s, %s, %s, %s)'
+params = ['Поворот туда', '2021-01-18 22:44:43.609961', 'Крутое пике', None, None, None]
+ignored_wrapper_args = (False, {'connection': <django.db.backends.sqlite3.base.DatabaseWrapper object at 0x0432FE10>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x04C79FB0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+
+venv\lib\site-packages\django\db\backends\utils.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x056377C0>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:43.609961', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.test_05_review.Test05ReviewAPI object at 0x055714F0>
+client = <django.test.client.Client object at 0x05750C90>
+user_client = <rest_framework.test.APIClient object at 0x0511B910>
+admin = <User: admin@yamdb.fake>
+
+    @pytest.mark.django_db(transaction=True)
+    def test_03_review_detail(self, client, user_client, admin):
+>       reviews, titles, user, moderator = create_reviews(user_client, admin)
+
+tests\test_05_review.py:133: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\common.py:85: in create_reviews
+    titles, _, _ = create_titles(user_client)
+tests\common.py:68: in create_titles
+    response = user_client.post('/api/v1/titles/', data=data)
+venv\lib\site-packages\rest_framework\test.py:294: in post
+    path, data=data, format=format, content_type=content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:207: in post
+    return self.generic('POST', path, data, content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:232: in generic
+    method, path, data, content_type, secure, **extra)
+venv\lib\site-packages\django\test\client.py:421: in generic
+    return self.request(**r)
+venv\lib\site-packages\rest_framework\test.py:283: in request
+    return super().request(**kwargs)
+venv\lib\site-packages\rest_framework\test.py:235: in request
+    request = super().request(**kwargs)
+venv\lib\site-packages\django\test\client.py:496: in request
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:34: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:115: in _get_response
+    response = self.process_exception_by_middleware(e, request)
+venv\lib\site-packages\django\core\handlers\base.py:113: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:114: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:505: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:465: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:476: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:502: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:19: in create
+    self.perform_create(serializer)
+venv\lib\site-packages\rest_framework\mixins.py:24: in perform_create
+    serializer.save()
+venv\lib\site-packages\rest_framework\serializers.py:212: in save
+    self.instance = self.create(validated_data)
+venv\lib\site-packages\rest_framework\serializers.py:948: in create
+    instance = ModelClass._default_manager.create(**validated_data)
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:433: in create
+    obj.save(force_insert=True, using=self.db)
+venv\lib\site-packages\django\db\models\base.py:746: in save
+    force_update=force_update, update_fields=update_fields)
+venv\lib\site-packages\django\db\models\base.py:784: in save_base
+    force_update, using, update_fields,
+venv\lib\site-packages\django\db\models\base.py:887: in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+venv\lib\site-packages\django\db\models\base.py:926: in _do_insert
+    using=using, raw=raw,
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:1204: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv\lib\site-packages\django\db\models\sql\compiler.py:1391: in execute_sql
+    cursor.execute(sql, params)
+venv\lib\site-packages\django\db\backends\utils.py:68: in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+venv\lib\site-packages\django\db\backends\utils.py:77: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+venv\lib\site-packages\django\db\utils.py:90: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x056377C0>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:43.609961', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+------------------------------ Captured log call ------------------------------
+ERROR    django.request:log.py:228 Internal Server Error: /api/v1/titles/
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 114, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 505, in dispatch
+    response = self.handle_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 465, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 476, in raise_uncaught_exception
+    raise exc
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 502, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 19, in create
+    self.perform_create(serializer)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 24, in perform_create
+    serializer.save()
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 212, in save
+    self.instance = self.create(validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 948, in create
+    instance = ModelClass._default_manager.create(**validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 433, in create
+    obj.save(force_insert=True, using=self.db)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 746, in save
+    force_update=force_update, update_fields=update_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 784, in save_base
+    force_update, using, update_fields,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 887, in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 926, in _do_insert
+    using=using, raw=raw,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 1204, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\sql\compiler.py", line 1391, in execute_sql
+    cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 68, in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 77, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\utils.py", line 90, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+______________ Test05ReviewAPI.test_04_reviews_check_permission _______________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x05A94A30>
+sql = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (%s, %s, %s, %s, %s, %s)'
+params = ['Поворот туда', '2021-01-18 22:44:44.580961', 'Крутое пике', None, None, None]
+ignored_wrapper_args = (False, {'connection': <django.db.backends.sqlite3.base.DatabaseWrapper object at 0x0432FE10>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x05A94A30>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+
+venv\lib\site-packages\django\db\backends\utils.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x0564A240>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:44.580961', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.test_05_review.Test05ReviewAPI object at 0x05296430>
+client = <django.test.client.Client object at 0x057509D0>
+user_client = <rest_framework.test.APIClient object at 0x05750E50>
+admin = <User: admin@yamdb.fake>
+
+    @pytest.mark.django_db(transaction=True)
+    def test_04_reviews_check_permission(self, client, user_client, admin):
+>       reviews, titles, user, moderator = create_reviews(user_client, admin)
+
+tests\test_05_review.py:230: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\common.py:85: in create_reviews
+    titles, _, _ = create_titles(user_client)
+tests\common.py:68: in create_titles
+    response = user_client.post('/api/v1/titles/', data=data)
+venv\lib\site-packages\rest_framework\test.py:294: in post
+    path, data=data, format=format, content_type=content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:207: in post
+    return self.generic('POST', path, data, content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:232: in generic
+    method, path, data, content_type, secure, **extra)
+venv\lib\site-packages\django\test\client.py:421: in generic
+    return self.request(**r)
+venv\lib\site-packages\rest_framework\test.py:283: in request
+    return super().request(**kwargs)
+venv\lib\site-packages\rest_framework\test.py:235: in request
+    request = super().request(**kwargs)
+venv\lib\site-packages\django\test\client.py:496: in request
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:34: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:115: in _get_response
+    response = self.process_exception_by_middleware(e, request)
+venv\lib\site-packages\django\core\handlers\base.py:113: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:114: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:505: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:465: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:476: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:502: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:19: in create
+    self.perform_create(serializer)
+venv\lib\site-packages\rest_framework\mixins.py:24: in perform_create
+    serializer.save()
+venv\lib\site-packages\rest_framework\serializers.py:212: in save
+    self.instance = self.create(validated_data)
+venv\lib\site-packages\rest_framework\serializers.py:948: in create
+    instance = ModelClass._default_manager.create(**validated_data)
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:433: in create
+    obj.save(force_insert=True, using=self.db)
+venv\lib\site-packages\django\db\models\base.py:746: in save
+    force_update=force_update, update_fields=update_fields)
+venv\lib\site-packages\django\db\models\base.py:784: in save_base
+    force_update, using, update_fields,
+venv\lib\site-packages\django\db\models\base.py:887: in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+venv\lib\site-packages\django\db\models\base.py:926: in _do_insert
+    using=using, raw=raw,
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:1204: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv\lib\site-packages\django\db\models\sql\compiler.py:1391: in execute_sql
+    cursor.execute(sql, params)
+venv\lib\site-packages\django\db\backends\utils.py:68: in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+venv\lib\site-packages\django\db\backends\utils.py:77: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+venv\lib\site-packages\django\db\utils.py:90: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x0564A240>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:44.580961', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+------------------------------ Captured log call ------------------------------
+ERROR    django.request:log.py:228 Internal Server Error: /api/v1/titles/
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 114, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 505, in dispatch
+    response = self.handle_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 465, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 476, in raise_uncaught_exception
+    raise exc
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 502, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 19, in create
+    self.perform_create(serializer)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 24, in perform_create
+    serializer.save()
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 212, in save
+    self.instance = self.create(validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 948, in create
+    instance = ModelClass._default_manager.create(**validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 433, in create
+    obj.save(force_insert=True, using=self.db)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 746, in save
+    force_update=force_update, update_fields=update_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 784, in save_base
+    force_update, using, update_fields,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 887, in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 926, in _do_insert
+    using=using, raw=raw,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 1204, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\sql\compiler.py", line 1391, in execute_sql
+    cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 68, in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 77, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\utils.py", line 90, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+__________________ Test06CommentAPI.test_01_comment_not_auth __________________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x058C8130>
+sql = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (%s, %s, %s, %s, %s, %s)'
+params = ['Поворот туда', '2021-01-18 22:44:45.572961', 'Крутое пике', None, None, None]
+ignored_wrapper_args = (False, {'connection': <django.db.backends.sqlite3.base.DatabaseWrapper object at 0x0432FE10>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x058C8130>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+
+venv\lib\site-packages\django\db\backends\utils.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x05649B88>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:45.572961', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.test_06_comment.Test06CommentAPI object at 0x05AEFA10>
+client = <django.test.client.Client object at 0x050A9D50>
+user_client = <rest_framework.test.APIClient object at 0x050A9E10>
+admin = <User: admin@yamdb.fake>
+
+    @pytest.mark.django_db(transaction=True)
+    def test_01_comment_not_auth(self, client, user_client, admin):
+>       reviews, titles, _, _ = create_reviews(user_client, admin)
+
+tests\test_06_comment.py:10: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\common.py:85: in create_reviews
+    titles, _, _ = create_titles(user_client)
+tests\common.py:68: in create_titles
+    response = user_client.post('/api/v1/titles/', data=data)
+venv\lib\site-packages\rest_framework\test.py:294: in post
+    path, data=data, format=format, content_type=content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:207: in post
+    return self.generic('POST', path, data, content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:232: in generic
+    method, path, data, content_type, secure, **extra)
+venv\lib\site-packages\django\test\client.py:421: in generic
+    return self.request(**r)
+venv\lib\site-packages\rest_framework\test.py:283: in request
+    return super().request(**kwargs)
+venv\lib\site-packages\rest_framework\test.py:235: in request
+    request = super().request(**kwargs)
+venv\lib\site-packages\django\test\client.py:496: in request
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:34: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:115: in _get_response
+    response = self.process_exception_by_middleware(e, request)
+venv\lib\site-packages\django\core\handlers\base.py:113: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:114: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:505: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:465: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:476: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:502: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:19: in create
+    self.perform_create(serializer)
+venv\lib\site-packages\rest_framework\mixins.py:24: in perform_create
+    serializer.save()
+venv\lib\site-packages\rest_framework\serializers.py:212: in save
+    self.instance = self.create(validated_data)
+venv\lib\site-packages\rest_framework\serializers.py:948: in create
+    instance = ModelClass._default_manager.create(**validated_data)
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:433: in create
+    obj.save(force_insert=True, using=self.db)
+venv\lib\site-packages\django\db\models\base.py:746: in save
+    force_update=force_update, update_fields=update_fields)
+venv\lib\site-packages\django\db\models\base.py:784: in save_base
+    force_update, using, update_fields,
+venv\lib\site-packages\django\db\models\base.py:887: in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+venv\lib\site-packages\django\db\models\base.py:926: in _do_insert
+    using=using, raw=raw,
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:1204: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv\lib\site-packages\django\db\models\sql\compiler.py:1391: in execute_sql
+    cursor.execute(sql, params)
+venv\lib\site-packages\django\db\backends\utils.py:68: in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+venv\lib\site-packages\django\db\backends\utils.py:77: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+venv\lib\site-packages\django\db\utils.py:90: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x05649B88>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:45.572961', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+------------------------------ Captured log call ------------------------------
+ERROR    django.request:log.py:228 Internal Server Error: /api/v1/titles/
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 114, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 505, in dispatch
+    response = self.handle_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 465, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 476, in raise_uncaught_exception
+    raise exc
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 502, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 19, in create
+    self.perform_create(serializer)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 24, in perform_create
+    serializer.save()
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 212, in save
+    self.instance = self.create(validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 948, in create
+    instance = ModelClass._default_manager.create(**validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 433, in create
+    obj.save(force_insert=True, using=self.db)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 746, in save
+    force_update=force_update, update_fields=update_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 784, in save_base
+    force_update, using, update_fields,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 887, in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 926, in _do_insert
+    using=using, raw=raw,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 1204, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\sql\compiler.py", line 1391, in execute_sql
+    cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 68, in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 77, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\utils.py", line 90, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+______________________ Test06CommentAPI.test_02_comment _______________________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x057089B0>
+sql = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (%s, %s, %s, %s, %s, %s)'
+params = ['Поворот туда', '2021-01-18 22:44:46.544961', 'Крутое пике', None, None, None]
+ignored_wrapper_args = (False, {'connection': <django.db.backends.sqlite3.base.DatabaseWrapper object at 0x0432FE10>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x057089B0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+
+venv\lib\site-packages\django\db\backends\utils.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x056308C8>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:46.544961', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.test_06_comment.Test06CommentAPI object at 0x050A3350>
+user_client = <rest_framework.test.APIClient object at 0x059B6330>
+admin = <User: admin@yamdb.fake>
+
+    @pytest.mark.django_db(transaction=True)
+    def test_02_comment(self, user_client, admin):
+>       reviews, titles, user, moderator = create_reviews(user_client, admin)
+
+tests\test_06_comment.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\common.py:85: in create_reviews
+    titles, _, _ = create_titles(user_client)
+tests\common.py:68: in create_titles
+    response = user_client.post('/api/v1/titles/', data=data)
+venv\lib\site-packages\rest_framework\test.py:294: in post
+    path, data=data, format=format, content_type=content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:207: in post
+    return self.generic('POST', path, data, content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:232: in generic
+    method, path, data, content_type, secure, **extra)
+venv\lib\site-packages\django\test\client.py:421: in generic
+    return self.request(**r)
+venv\lib\site-packages\rest_framework\test.py:283: in request
+    return super().request(**kwargs)
+venv\lib\site-packages\rest_framework\test.py:235: in request
+    request = super().request(**kwargs)
+venv\lib\site-packages\django\test\client.py:496: in request
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:34: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:115: in _get_response
+    response = self.process_exception_by_middleware(e, request)
+venv\lib\site-packages\django\core\handlers\base.py:113: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:114: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:505: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:465: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:476: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:502: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:19: in create
+    self.perform_create(serializer)
+venv\lib\site-packages\rest_framework\mixins.py:24: in perform_create
+    serializer.save()
+venv\lib\site-packages\rest_framework\serializers.py:212: in save
+    self.instance = self.create(validated_data)
+venv\lib\site-packages\rest_framework\serializers.py:948: in create
+    instance = ModelClass._default_manager.create(**validated_data)
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:433: in create
+    obj.save(force_insert=True, using=self.db)
+venv\lib\site-packages\django\db\models\base.py:746: in save
+    force_update=force_update, update_fields=update_fields)
+venv\lib\site-packages\django\db\models\base.py:784: in save_base
+    force_update, using, update_fields,
+venv\lib\site-packages\django\db\models\base.py:887: in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+venv\lib\site-packages\django\db\models\base.py:926: in _do_insert
+    using=using, raw=raw,
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:1204: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv\lib\site-packages\django\db\models\sql\compiler.py:1391: in execute_sql
+    cursor.execute(sql, params)
+venv\lib\site-packages\django\db\backends\utils.py:68: in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+venv\lib\site-packages\django\db\backends\utils.py:77: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+venv\lib\site-packages\django\db\utils.py:90: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x056308C8>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:46.544961', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+------------------------------ Captured log call ------------------------------
+ERROR    django.request:log.py:228 Internal Server Error: /api/v1/titles/
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 114, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 505, in dispatch
+    response = self.handle_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 465, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 476, in raise_uncaught_exception
+    raise exc
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 502, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 19, in create
+    self.perform_create(serializer)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 24, in perform_create
+    serializer.save()
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 212, in save
+    self.instance = self.create(validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 948, in create
+    instance = ModelClass._default_manager.create(**validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 433, in create
+    obj.save(force_insert=True, using=self.db)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 746, in save
+    force_update=force_update, update_fields=update_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 784, in save_base
+    force_update, using, update_fields,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 887, in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 926, in _do_insert
+    using=using, raw=raw,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 1204, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\sql\compiler.py", line 1391, in execute_sql
+    cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 68, in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 77, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\utils.py", line 90, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+___________________ Test06CommentAPI.test_03_review_detail ____________________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x05A6E150>
+sql = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (%s, %s, %s, %s, %s, %s)'
+params = ['Поворот туда', '2021-01-18 22:44:47.527961', 'Крутое пике', None, None, None]
+ignored_wrapper_args = (False, {'connection': <django.db.backends.sqlite3.base.DatabaseWrapper object at 0x0432FE10>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x05A6E150>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+
+venv\lib\site-packages\django\db\backends\utils.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x055DE450>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:47.527961', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.test_06_comment.Test06CommentAPI object at 0x05A5F870>
+client = <django.test.client.Client object at 0x05A6E3D0>
+user_client = <rest_framework.test.APIClient object at 0x05A6E030>
+admin = <User: admin@yamdb.fake>
+
+    @pytest.mark.django_db(transaction=True)
+    def test_03_review_detail(self, client, user_client, admin):
+>       comments, reviews, titles, user, moderator = create_comments(user_client, admin)
+
+tests\test_06_comment.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\common.py:105: in create_comments
+    reviews, titles, user, moderator = create_reviews(user_client, admin)
+tests\common.py:85: in create_reviews
+    titles, _, _ = create_titles(user_client)
+tests\common.py:68: in create_titles
+    response = user_client.post('/api/v1/titles/', data=data)
+venv\lib\site-packages\rest_framework\test.py:294: in post
+    path, data=data, format=format, content_type=content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:207: in post
+    return self.generic('POST', path, data, content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:232: in generic
+    method, path, data, content_type, secure, **extra)
+venv\lib\site-packages\django\test\client.py:421: in generic
+    return self.request(**r)
+venv\lib\site-packages\rest_framework\test.py:283: in request
+    return super().request(**kwargs)
+venv\lib\site-packages\rest_framework\test.py:235: in request
+    request = super().request(**kwargs)
+venv\lib\site-packages\django\test\client.py:496: in request
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:34: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:115: in _get_response
+    response = self.process_exception_by_middleware(e, request)
+venv\lib\site-packages\django\core\handlers\base.py:113: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:114: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:505: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:465: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:476: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:502: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:19: in create
+    self.perform_create(serializer)
+venv\lib\site-packages\rest_framework\mixins.py:24: in perform_create
+    serializer.save()
+venv\lib\site-packages\rest_framework\serializers.py:212: in save
+    self.instance = self.create(validated_data)
+venv\lib\site-packages\rest_framework\serializers.py:948: in create
+    instance = ModelClass._default_manager.create(**validated_data)
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:433: in create
+    obj.save(force_insert=True, using=self.db)
+venv\lib\site-packages\django\db\models\base.py:746: in save
+    force_update=force_update, update_fields=update_fields)
+venv\lib\site-packages\django\db\models\base.py:784: in save_base
+    force_update, using, update_fields,
+venv\lib\site-packages\django\db\models\base.py:887: in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+venv\lib\site-packages\django\db\models\base.py:926: in _do_insert
+    using=using, raw=raw,
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:1204: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv\lib\site-packages\django\db\models\sql\compiler.py:1391: in execute_sql
+    cursor.execute(sql, params)
+venv\lib\site-packages\django\db\backends\utils.py:68: in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+venv\lib\site-packages\django\db\backends\utils.py:77: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+venv\lib\site-packages\django\db\utils.py:90: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x055DE450>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:47.527961', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+------------------------------ Captured log call ------------------------------
+ERROR    django.request:log.py:228 Internal Server Error: /api/v1/titles/
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 114, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 505, in dispatch
+    response = self.handle_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 465, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 476, in raise_uncaught_exception
+    raise exc
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 502, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 19, in create
+    self.perform_create(serializer)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 24, in perform_create
+    serializer.save()
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 212, in save
+    self.instance = self.create(validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 948, in create
+    instance = ModelClass._default_manager.create(**validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 433, in create
+    obj.save(force_insert=True, using=self.db)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 746, in save
+    force_update=force_update, update_fields=update_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 784, in save_base
+    force_update, using, update_fields,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 887, in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 926, in _do_insert
+    using=using, raw=raw,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 1204, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\sql\compiler.py", line 1391, in execute_sql
+    cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 68, in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 77, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\utils.py", line 90, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+______________ Test06CommentAPI.test_04_comment_check_permission ______________
+
+self = <django.db.backends.utils.CursorWrapper object at 0x0572EFD0>
+sql = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (%s, %s, %s, %s, %s, %s)'
+params = ['Поворот туда', '2021-01-18 22:44:48.528961', 'Крутое пике', None, None, None]
+ignored_wrapper_args = (False, {'connection': <django.db.backends.sqlite3.base.DatabaseWrapper object at 0x0432FE10>, 'cursor': <django.db.backends.utils.CursorWrapper object at 0x0572EFD0>})
+
+    def _execute(self, sql, params, *ignored_wrapper_args):
+        self.db.validate_no_broken_transaction()
+        with self.db.wrap_database_errors:
+            if params is None:
+                # params default might be backend specific.
+                return self.cursor.execute(sql)
+            else:
+>               return self.cursor.execute(sql, params)
+
+venv\lib\site-packages\django\db\backends\utils.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x05630A28>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:48.528961', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.test_06_comment.Test06CommentAPI object at 0x05A5F8D0>
+client = <django.test.client.Client object at 0x055B97D0>
+user_client = <rest_framework.test.APIClient object at 0x055B9090>
+admin = <User: admin@yamdb.fake>
+
+    @pytest.mark.django_db(transaction=True)
+    def test_04_comment_check_permission(self, client, user_client, admin):
+>       comments, reviews, titles, user, moderator = create_comments(user_client, admin)
+
+tests\test_06_comment.py:188: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\common.py:105: in create_comments
+    reviews, titles, user, moderator = create_reviews(user_client, admin)
+tests\common.py:85: in create_reviews
+    titles, _, _ = create_titles(user_client)
+tests\common.py:68: in create_titles
+    response = user_client.post('/api/v1/titles/', data=data)
+venv\lib\site-packages\rest_framework\test.py:294: in post
+    path, data=data, format=format, content_type=content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:207: in post
+    return self.generic('POST', path, data, content_type, **extra)
+venv\lib\site-packages\rest_framework\test.py:232: in generic
+    method, path, data, content_type, secure, **extra)
+venv\lib\site-packages\django\test\client.py:421: in generic
+    return self.request(**r)
+venv\lib\site-packages\rest_framework\test.py:283: in request
+    return super().request(**kwargs)
+venv\lib\site-packages\rest_framework\test.py:235: in request
+    request = super().request(**kwargs)
+venv\lib\site-packages\django\test\client.py:496: in request
+    raise exc_value
+venv\lib\site-packages\django\core\handlers\exception.py:34: in inner
+    response = get_response(request)
+venv\lib\site-packages\django\core\handlers\base.py:115: in _get_response
+    response = self.process_exception_by_middleware(e, request)
+venv\lib\site-packages\django\core\handlers\base.py:113: in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+venv\lib\site-packages\django\views\decorators\csrf.py:54: in wrapped_view
+    return view_func(*args, **kwargs)
+venv\lib\site-packages\rest_framework\viewsets.py:114: in view
+    return self.dispatch(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\views.py:505: in dispatch
+    response = self.handle_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:465: in handle_exception
+    self.raise_uncaught_exception(exc)
+venv\lib\site-packages\rest_framework\views.py:476: in raise_uncaught_exception
+    raise exc
+venv\lib\site-packages\rest_framework\views.py:502: in dispatch
+    response = handler(request, *args, **kwargs)
+venv\lib\site-packages\rest_framework\mixins.py:19: in create
+    self.perform_create(serializer)
+venv\lib\site-packages\rest_framework\mixins.py:24: in perform_create
+    serializer.save()
+venv\lib\site-packages\rest_framework\serializers.py:212: in save
+    self.instance = self.create(validated_data)
+venv\lib\site-packages\rest_framework\serializers.py:948: in create
+    instance = ModelClass._default_manager.create(**validated_data)
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:433: in create
+    obj.save(force_insert=True, using=self.db)
+venv\lib\site-packages\django\db\models\base.py:746: in save
+    force_update=force_update, update_fields=update_fields)
+venv\lib\site-packages\django\db\models\base.py:784: in save_base
+    force_update, using, update_fields,
+venv\lib\site-packages\django\db\models\base.py:887: in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+venv\lib\site-packages\django\db\models\base.py:926: in _do_insert
+    using=using, raw=raw,
+venv\lib\site-packages\django\db\models\manager.py:82: in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+venv\lib\site-packages\django\db\models\query.py:1204: in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+venv\lib\site-packages\django\db\models\sql\compiler.py:1391: in execute_sql
+    cursor.execute(sql, params)
+venv\lib\site-packages\django\db\backends\utils.py:68: in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+venv\lib\site-packages\django\db\backends\utils.py:77: in _execute_with_wrappers
+    return executor(sql, params, many, context)
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+venv\lib\site-packages\django\db\utils.py:90: in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+venv\lib\site-packages\django\db\backends\utils.py:86: in _execute
+    return self.cursor.execute(sql, params)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <django.db.backends.sqlite3.base.SQLiteCursorWrapper object at 0x05630A28>
+query = 'INSERT INTO "api_v1_titles" ("name", "year", "description", "rating", "category_id", "genre_id") VALUES (?, ?, ?, ?, ?, ?)'
+params = ['Поворот туда', '2021-01-18 22:44:48.528961', 'Крутое пике', None, None, None]
+
+    def execute(self, query, params=None):
+        if params is None:
+            return Database.Cursor.execute(self, query)
+        query = self.convert_query(query)
+>       return Database.Cursor.execute(self, query, params)
+E       django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+venv\lib\site-packages\django\db\backends\sqlite3\base.py:396: IntegrityError
+------------------------------ Captured log call ------------------------------
+ERROR    django.request:log.py:228 Internal Server Error: /api/v1/titles/
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+sqlite3.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\views\decorators\csrf.py", line 54, in wrapped_view
+    return view_func(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\viewsets.py", line 114, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 505, in dispatch
+    response = self.handle_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 465, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 476, in raise_uncaught_exception
+    raise exc
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\views.py", line 502, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 19, in create
+    self.perform_create(serializer)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\mixins.py", line 24, in perform_create
+    serializer.save()
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 212, in save
+    self.instance = self.create(validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\serializers.py", line 948, in create
+    instance = ModelClass._default_manager.create(**validated_data)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 433, in create
+    obj.save(force_insert=True, using=self.db)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 746, in save
+    force_update=force_update, update_fields=update_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 784, in save_base
+    force_update, using, update_fields,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 887, in _save_table
+    results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\base.py", line 926, in _do_insert
+    using=using, raw=raw,
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\manager.py", line 82, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\query.py", line 1204, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\models\sql\compiler.py", line 1391, in execute_sql
+    cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 68, in execute
+    return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 77, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\utils.py", line 90, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\utils.py", line 86, in _execute
+    return self.cursor.execute(sql, params)
+  File "c:\dev\api_yamdb\venv\lib\site-packages\django\db\backends\sqlite3\base.py", line 396, in execute
+    return Database.Cursor.execute(self, query, params)
+django.db.utils.IntegrityError: NOT NULL constraint failed: api_v1_titles.rating
+-------------------------- Captured stderr teardown ---------------------------
+Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+============================== warnings summary ===============================
+tests/test_02_category.py::Test02CategoryAPI::test_01_category_not_auth
+tests/test_02_category.py::Test02CategoryAPI::test_02_category
+tests/test_02_category.py::Test02CategoryAPI::test_03_category_delete
+  c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\pagination.py:200: UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'api_v1.models.Categories'> QuerySet.
+    paginator = self.django_paginator_class(queryset, page_size)
+
+tests/test_03_genre.py::Test03GenreAPI::test_01_genre_not_auth
+tests/test_03_genre.py::Test03GenreAPI::test_02_genre
+tests/test_03_genre.py::Test03GenreAPI::test_03_genres_delete
+  c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\pagination.py:200: UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'api_v1.models.Genres'> QuerySet.
+    paginator = self.django_paginator_class(queryset, page_size)
+
+tests/test_04_title.py::Test04TitleAPI::test_01_title_not_auth
+  c:\dev\api_yamdb\venv\lib\site-packages\rest_framework\pagination.py:200: UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'api_v1.models.Titles'> QuerySet.
+    paginator = self.django_paginator_class(queryset, page_size)
+
+-- Docs: https://docs.pytest.org/en/latest/warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_02_category.py::Test02CategoryAPI::test_03_category_delete
+FAILED tests/test_02_category.py::Test02CategoryAPI::test_04_category_check_permission
+FAILED tests/test_03_genre.py::Test03GenreAPI::test_03_genres_delete - Assert...
+FAILED tests/test_03_genre.py::Test03GenreAPI::test_04_genres_check_permission
+FAILED tests/test_04_title.py::Test04TitleAPI::test_02_title - django.db.util...
+FAILED tests/test_04_title.py::Test04TitleAPI::test_03_titles_detail - django...
+FAILED tests/test_04_title.py::Test04TitleAPI::test_04_titles_check_permission
+FAILED tests/test_05_review.py::Test05ReviewAPI::test_01_review_not_auth - dj...
+FAILED tests/test_05_review.py::Test05ReviewAPI::test_02_review - django.db.u...
+FAILED tests/test_05_review.py::Test05ReviewAPI::test_03_review_detail - djan...
+FAILED tests/test_05_review.py::Test05ReviewAPI::test_04_reviews_check_permission
+FAILED tests/test_06_comment.py::Test06CommentAPI::test_01_comment_not_auth
+FAILED tests/test_06_comment.py::Test06CommentAPI::test_02_comment - django.d...
+FAILED tests/test_06_comment.py::Test06CommentAPI::test_03_review_detail - dj...
+FAILED tests/test_06_comment.py::Test06CommentAPI::test_04_comment_check_permission
+================= 15 failed, 16 passed, 7 warnings in 21.69s ==================
