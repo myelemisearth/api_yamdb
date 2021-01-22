@@ -2,18 +2,22 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 from django.core.management.utils import get_random_secret_key
+from django.db.models import Avg
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
+from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import CreateAPIView
 from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
                                    ListModelMixin)
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
+from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenViewBase
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
+from api_yamdb.settings import EMAIL_FROM, EMAIL_SUBJ, EMAIL_TEXT
 from .filters import TitleFilter
-from .models import Review, Titles, Genres, Categories
+from .models import Review, Title, Genre, Category
 from .permissions import ReadOnly, IsAdmin, IsModerator, IsOwner
 from .serializers import (TitlesSerializerGet, TitlesSerializerPost,
                           UserSerializer, EmailSerializer,
@@ -21,17 +25,12 @@ from .serializers import (TitlesSerializerGet, TitlesSerializerPost,
                           CommentSerializer, GenresSerializer,
                           CategoriesSerializer)
 
-
-from django.db.models import Avg
-
 User = get_user_model()
 
-EMAIL_FROM = 'api_yamdb@yamdb.ru'
-EMAIL_SUBJ = 'Thank you for registering on API YamDB'
-EMAIL_TEXT = 'Dont reply on this email!!! You just registered on API YamDB ' \
-             'with email {email}. For getting your token and using our API ' \
-             'send POST request to auth/token/ with email and confirmation_' \
-             'code {confirm_code}. Token will return in response body.'
+
+class CreateDelListViewset(CreateModelMixin, DestroyModelMixin,
+                           ListModelMixin, GenericViewSet):
+    pass
 
 
 class UsersViewset(ModelViewSet):
@@ -42,21 +41,24 @@ class UsersViewset(ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('username',)
 
+    @action(detail=False, methods=('GET', 'PATCH',),
+            permission_classes=(IsAuthenticated,))
+    def me(self, request):
+        user_id = self.request.user.id
+        user = get_object_or_404(User, id=user_id)
+        if request.method == 'GET':
+            serializer = self.get_serializer(user)
+        else:
+            serializer = self.get_serializer(
+                user, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+        return Response(serializer.data)
+
     def perform_create(self, serializer):
         password = str(get_random_secret_key())[:10]
         password_hash = make_password(password)
         serializer.save(password=password_hash, is_active=True)
-
-
-class UserView(RetrieveUpdateAPIView):
-    permission_classes = (IsAuthenticated,)
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-    def get_object(self):
-        queryset = self.get_queryset()
-        obj = get_object_or_404(queryset, id=self.request.user.id)
-        return obj
 
 
 class UserRegisterView(CreateAPIView):
@@ -70,7 +72,7 @@ class UserRegisterView(CreateAPIView):
         password_hash = make_password(password)
         send_mail(
             EMAIL_SUBJ,
-            EMAIL_TEXT.format(email=email, confirm_code=password_hash),
+            EMAIL_TEXT[0].format(email=email, confirm_code=password_hash),
             EMAIL_FROM,
             [email],
             fail_silently=False,
@@ -89,12 +91,11 @@ class ReviewsViewSet(ModelViewSet):
         IsOwner|IsAdmin|IsModerator|ReadOnly,)
 
     def get_queryset(self):
-        title = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         return title.reviews.all()
 
     def perform_create(self, serializer):
-        title = get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
-        rating = title.reviews.annotate(Avg('score'))
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title)
 
 
@@ -112,13 +113,8 @@ class CommentsViewSet(ModelViewSet):
         serializer.save(author=self.request.user, review=review)
 
 
-class CustomViewSet(CreateModelMixin, DestroyModelMixin,
-                    ListModelMixin, GenericViewSet):
-    pass
-
-
-class CategoriesViewSet(CustomViewSet):
-    queryset = Categories.objects.all()
+class CategoriesViewSet(CreateDelListViewset):
+    queryset = Category.objects.all()
     serializer_class = CategoriesSerializer
     permission_classes = (IsAdmin|ReadOnly,)
     lookup_field = 'slug'
@@ -126,8 +122,8 @@ class CategoriesViewSet(CustomViewSet):
     search_fields = ('name',)
 
 
-class GenresViewSet(CustomViewSet):
-    queryset = Genres.objects.all()
+class GenresViewSet(CreateDelListViewset):
+    queryset = Genre.objects.all()
     serializer_class = GenresSerializer
     permission_classes = (IsAdmin|ReadOnly,)
     lookup_field = 'slug'
@@ -137,7 +133,8 @@ class GenresViewSet(CustomViewSet):
 
 class TitlesViewset(ModelViewSet):
     permission_classes = (IsAdmin|ReadOnly,)
-    queryset = Titles.objects.annotate(rating=Avg('reviews__score'))
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')).order_by('name')
     filterset_class = TitleFilter
     filter_backends = (DjangoFilterBackend,)
 

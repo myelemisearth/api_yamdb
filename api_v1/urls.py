@@ -1,42 +1,35 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
- 
-from .views import (UserRegisterView, TokenObtainView, UserView,
+
+from .views import (UserRegisterView, TokenObtainView,
                     UsersViewset, ReviewsViewSet, CommentsViewSet,
                     TitlesViewset, GenresViewSet, CategoriesViewSet)
- 
 
 router = DefaultRouter()
 router.register(
-     r'titles/(?P<title_id>\d+)/reviews', 
-     ReviewsViewSet, 
-     basename='ReviewsViewSet'
-) 
+    r'titles/(?P<title_id>\d+)/reviews',
+    ReviewsViewSet,
+    basename='ReviewsViewSet')
 router.register(
-     r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
-     CommentsViewSet,
-     basename='CommentsViewSet'
-) 
+    r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
+    CommentsViewSet,
+    basename='CommentsViewSet')
 router.register(
-     'users',
-     UsersViewset,
-     basename='users'
-)
+    'users',
+    UsersViewset,
+    basename='users')
 router.register(
-     r'titles',
-     TitlesViewset,
-     basename='titles'
-)
+    r'titles',
+    TitlesViewset,
+    basename='titles')
 router.register(
      r'categories',
      CategoriesViewSet,
-     basename='categories'
-)
+     basename='categories')
 router.register(
-     r'genres',
-     GenresViewSet,
-     basename='genres'
-)
+    r'genres',
+    GenresViewSet,
+    basename='genres')
 
 auth_patterns = [
     path('email/',
@@ -44,11 +37,9 @@ auth_patterns = [
     path('token/',
          TokenObtainView.as_view())
 ]
-urlpatterns = [ 
-    path('auth/',
+urlpatterns = [
+    path('v1/auth/',
          include(auth_patterns)),
-    path('users/me/',
-         UserView.as_view()),
-    path('',
+    path('v1/',
          include(router.urls)),
 ]
