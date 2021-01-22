@@ -1,7 +1,11 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
 
 from .models import User, Review, Comment, Category, Genre, Title
+from .validators import custom_year_validator
+
+RANGE_ERROR_MESSAGE = 'Entered value must be between 1 and 10'
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -13,6 +17,12 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username',
         read_only=True,
         default=serializers.CurrentUserDefault()
+    )
+    score = serializers.IntegerField(
+        validators=(
+            MinValueValidator(1, message=RANGE_ERROR_MESSAGE),
+            MaxValueValidator(10, message=RANGE_ERROR_MESSAGE),
+        )
     )
 
     def validate(self, data):
@@ -124,3 +134,7 @@ class TitlesSerializerPost(TitleSerializer):
         queryset=Genre.objects.all(),
         many=True
     )
+    year = serializers.IntegerField(
+        required=False,
+        validators=(custom_year_validator,)
+    )     

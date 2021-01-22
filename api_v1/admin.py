@@ -21,7 +21,9 @@ class ReviewAdmin(admin.ModelAdmin):
 
 
 class TitlesAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'get_genre', 'description', 'year',)
+    list_display = ('name', 'category', 'description', 'year',)
+    raw_id_fields = ('genre',)
+    
 
 
 admin.site.register(User, UserAdmin)
