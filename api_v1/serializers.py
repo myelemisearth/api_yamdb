@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .models import User, Review, Comment, Categories, Genres, Titles
+from .models import User, Review, Comment, Category, Genre, Title
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -54,7 +54,7 @@ class CustomTokenObtainSerializer(serializers.Serializer):
             email=email, password=confirmation_code, is_active=1).first()
         if user is None:
             raise serializers.ValidationError(
-                {'detail': 'User doesnt exists or blocked or ' \
+                {'detail': 'User doesnt exists or blocked or '
                     'confirmation code is incorrect'})
         token = {'token': str(AccessToken.for_user(user))}
         return token
@@ -78,7 +78,8 @@ class EmailSerializer(serializers.Serializer):
     def validate(self, data):
         email = data['email']
         if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError('Entered email is exists')
+            raise serializers.ValidationError(
+                {'detail': 'Entered email is exists'})
         return data
 
     def create(self, validated_data):
@@ -88,22 +89,22 @@ class EmailSerializer(serializers.Serializer):
 class CategoriesSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('name', 'slug')
-        model = Categories
+        exclude = ('id',)
+        model = Category
 
 
 class GenresSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('name', 'slug')
-        model = Genres
+        exclude = ('id',)
+        model = Genre
 
 
 class TitleSerializer(serializers.ModelSerializer):
     rating = serializers.FloatField(read_only=True)
 
     class Meta:
-        model = Titles
+        model = Title
         fields = '__all__'
 
 
@@ -115,11 +116,11 @@ class TitlesSerializerGet(TitleSerializer):
 class TitlesSerializerPost(TitleSerializer):
     category = serializers.SlugRelatedField(
         slug_field='slug',
-        queryset=Categories.objects.all(),
+        queryset=Category.objects.all(),
         required=False
     )
     genre = serializers.SlugRelatedField(
         slug_field='slug',
-        queryset=Genres.objects.all(),
+        queryset=Genre.objects.all(),
         many=True
     )
