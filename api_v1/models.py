@@ -8,7 +8,7 @@ class User(AbstractUser):
         USR = 'user', ('user')
         MOD = 'moderator', ('moderator')
         ADM = 'admin', ('admin')
-    
+
     email = models.EmailField(
         error_messages={
             'unique': ('A user with that email already exists.'),
@@ -27,15 +27,14 @@ class User(AbstractUser):
         default=Roles.ADM,
         verbose_name='Роль'
     )
-    
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username',)
-
 
     @property
     def is_admin(self):
         return self.role == self.Roles.ADM
-    
+
     @property
     def is_moderator(self):
         return self.role == self.Roles.MOD
@@ -47,7 +46,7 @@ class User(AbstractUser):
     class Meta:
         ordering = ('username',)
         verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи' 
+        verbose_name_plural = 'Пользователи'
 
 
 class Category(models.Model):
@@ -65,7 +64,7 @@ class Category(models.Model):
 
     class Meta:
         verbose_name = 'Категория'
-        verbose_name_plural = 'Категории' 
+        verbose_name_plural = 'Категории'
         ordering = ('name',)
 
 
@@ -84,7 +83,7 @@ class Genre(models.Model):
 
     class Meta:
         verbose_name = 'Жанр'
-        verbose_name_plural = 'Жанры' 
+        verbose_name_plural = 'Жанры'
         ordering = ('name',)
 
 
@@ -120,9 +119,9 @@ class Title(models.Model):
 
     class Meta:
         verbose_name = 'Произведение'
-        verbose_name_plural = 'Произведения' 
- 
- 
+        verbose_name_plural = 'Произведения'
+
+
 class Review(models.Model):
     text = models.TextField(
         verbose_name='Текст'
@@ -150,10 +149,10 @@ class Review(models.Model):
 
     class Meta:
         verbose_name = 'Рецензия'
-        verbose_name_plural = 'Рецензии' 
+        verbose_name_plural = 'Рецензии'
         ordering = ('-pub_date', 'author',)
- 
- 
+
+
 class Comment(models.Model):
     text = models.TextField(
         verbose_name='Текст'
@@ -180,5 +179,5 @@ class Comment(models.Model):
 
     class Meta:
         verbose_name = 'Комментарий'
-        verbose_name_plural = 'Комментарии' 
+        verbose_name_plural = 'Комментарии'
         ordering = ('-pub_date', 'author',)

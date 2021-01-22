@@ -5,10 +5,9 @@ from django.core.management.utils import get_random_secret_key
 from django.db.models import Avg
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import CreateAPIView
 from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
                                    ListModelMixin)
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
@@ -33,6 +32,7 @@ class CreateDelListViewset(CreateModelMixin, DestroyModelMixin,
                            ListModelMixin, GenericViewSet):
     pass
 
+
 class UsersViewset(ModelViewSet):
     lookup_field = 'username'
     permission_classes = (IsAdmin,)
@@ -41,14 +41,16 @@ class UsersViewset(ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('username',)
 
-    @action(detail=False, methods=('GET', 'PATCH',), permission_classes=(IsAuthenticated,))
+    @action(detail=False, methods=('GET', 'PATCH',),
+            permission_classes=(IsAuthenticated,))
     def me(self, request):
         user_id = self.request.user.id
         user = get_object_or_404(User, id=user_id)
         if request.method == 'GET':
             serializer = self.get_serializer(user)
         else:
-            serializer = self.get_serializer(user, data=request.data, partial=True)
+            serializer = self.get_serializer(
+                user, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
         return Response(serializer.data)
