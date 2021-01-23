@@ -136,7 +136,7 @@ class Review(models.Model):
         verbose_name='Оценка',
         validators=[
             MinValueValidator(1, message=RANGE_ERROR_MESSAGE),
-            MaxValueValidator(10, RANGE_ERROR_MESSAGE)
+            MaxValueValidator(10, message=RANGE_ERROR_MESSAGE)
         ]
     )
     pub_date = models.DateTimeField(
