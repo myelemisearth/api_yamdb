@@ -1,11 +1,9 @@
-from django.core.validators import MaxValueValidator, MinValueValidator
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import AccessToken
 
 from .models import User, Review, Comment, Category, Genre, Title
-from .validators import custom_year_validator
-
-RANGE_ERROR_MESSAGE = 'Entered value must be between 1 and 10'
+from .validators import (custom_year_validator, MaxValueValidator,
+    MinValueValidator, RANGE_ERROR_MESSAGE)
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -65,7 +63,7 @@ class CustomTokenObtainSerializer(serializers.Serializer):
         if user is None:
             raise serializers.ValidationError(
                 {'detail': 'User doesnt exists or blocked or '
-                    'confirmation code is incorrect'})
+                           'confirmation code is incorrect'})
         token = {'token': str(AccessToken.for_user(user))}
         return token
 
