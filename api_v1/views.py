@@ -44,8 +44,7 @@ class UsersViewset(ModelViewSet):
     @action(detail=False, methods=('GET', 'PATCH',),
             permission_classes=(IsAuthenticated,))
     def me(self, request):
-        user_id = self.request.user.id
-        user = get_object_or_404(User, id=user_id)
+        user = self.request.user
         if request.method == 'GET':
             serializer = self.get_serializer(user)
         else:

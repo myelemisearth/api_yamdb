@@ -1,6 +1,9 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from .validators import (custom_year_validator, RANGE_ERROR_MESSAGE,
+    MaxValueValidator, MinValueValidator)
+
 
 class User(AbstractUser):
 
@@ -96,7 +99,10 @@ class Title(models.Model):
     )
     year = models.IntegerField(
         null=True,
-        verbose_name='Год'
+        verbose_name='Год',
+        validators=[
+            custom_year_validator
+        ]
     )
     description = models.TextField(
         null=True,
@@ -127,7 +133,11 @@ class Review(models.Model):
         verbose_name='Текст'
     )
     score = models.IntegerField(
-        verbose_name='Оценка'
+        verbose_name='Оценка',
+        validators=[
+            MinValueValidator(1, message=RANGE_ERROR_MESSAGE),
+            MaxValueValidator(10, RANGE_ERROR_MESSAGE)
+        ]
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
